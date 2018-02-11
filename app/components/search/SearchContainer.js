@@ -13,13 +13,15 @@ class SearchContainer extends Component {
     super(props);
     this._throttledAutocomplete = throttle(this._autocomplete, 1000);
     this.state = {
-      searchBarVisible: false
+      searchBarVisible: false,
+      query: ''
     };
   }
 
   _onChangeText = (text) => {
-    const {setQuery} = this.props;
-    setQuery(text);
+    if (text === this.state.query) return;
+
+    this.setState({query: text});
     this._throttledAutocomplete(text);
   }
 
@@ -32,17 +34,13 @@ class SearchContainer extends Component {
 
   _onSearch = (newQuery) => {
 
-    const {query, region, receiveSearchResults, receiveAutocomplete, setQuery} = this.props;
+    const {region, receiveSearchResults, receiveAutocomplete} = this.props;
     Keyboard.dismiss();
 
-    // user hit search on keyboard
-    if (!newQuery) {
-      newQuery = query;
-    }
-
-    // if user selected from autocomplete then update search bar
-    if (newQuery !== query) {
-      setQuery(newQuery);
+    if (newQuery) {
+      this.setState({query: newQuery});
+    } else {
+      newQuery = this.state.query;
     }
     receiveAutocomplete([]);
 
@@ -52,16 +50,17 @@ class SearchContainer extends Component {
   };
 
   _onPress = () => {
-    const {receiveSearchResults, receiveAutocomplete, setQuery} = this.props;
+    const {receiveSearchResults, receiveAutocomplete} = this.props;
     this.setState({searchBarVisible: !this.state.searchBarVisible});
+
     if (!this.state.searchBarVisible) return;
-    setQuery('');
+    this.setState({query: ''});
     receiveSearchResults([]);
     receiveAutocomplete([]);
   };
 
   render() {
-    const {autocompletes, query, style} = this.props;
+    const {autocompletes, style} = this.props;
     return (
       <View style={[style, styles.container]}>
         {this.state.searchBarVisible ?
@@ -69,7 +68,7 @@ class SearchContainer extends Component {
               autocompletes={autocompletes}
               onChangeText={this._onChangeText}
               onSearch={this._onSearch}
-              query={query}
+              query={this.state.query}
               style={styles.searchBar}
             />
           :
@@ -86,7 +85,6 @@ class SearchContainer extends Component {
 
 const mapStateToProps = (state) => ({
   autocompletes: state.autocompletes,
-  query: state.query,
   region: state.region
 });
 
