@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Keyboard} from 'react-native';
 import {connect} from 'react-redux';
 import throttle from 'lodash/throttle';
 
 import SearchBar from './SearchBar';
 import SearchButton from './SearchButton';
-import {fetchAutocompletes} from '../../api';
+import {fetchAutocompletes, fetchSearchResults} from '../../api';
 import * as searchActions from '../../actions/searchActions';
 
 class SearchContainer extends Component {
@@ -17,6 +17,12 @@ class SearchContainer extends Component {
     };
   }
 
+  _onChangeText = (text) => {
+    const {setQuery} = this.props;
+    setQuery(text);
+    this._throttledAutocomplete(text);
+  }
+
   _autocomplete = (text) => {
     const {region, receiveAutocomplete} = this.props;
     fetchAutocompletes(text, region).then(response => {
@@ -24,35 +30,50 @@ class SearchContainer extends Component {
     });
   };
 
-  _onChangeText = (text) => {
-    const {setQuery} = this.props;
-    setQuery(text);
-    this._throttledAutocomplete(text);
-  };
+  _onSearch = (newQuery) => {
 
-  _onSearch = (query) => {
-    const {region, receiveSearchResults} = this.props;
-    fetchSearchResults(query, region).then(response => {
+    const {query, region, receiveSearchResults, receiveAutocomplete, setQuery} = this.props;
+    Keyboard.dismiss();
+
+    // user hit search on keyboard
+    if (!newQuery) {
+      newQuery = query;
+    }
+
+    // if user selected from autocomplete then update search bar
+    if (newQuery !== query) {
+      setQuery(newQuery);
+    }
+    receiveAutocomplete([]);
+
+    fetchSearchResults(newQuery, region).then(response => {
       receiveSearchResults(response);
     });
   };
 
   _onPress = () => {
+    const {receiveSearchResults, receiveAutocomplete, setQuery} = this.props;
     this.setState({searchBarVisible: !this.state.searchBarVisible});
+    if (!this.state.searchBarVisible) return;
+    setQuery('');
+    receiveSearchResults([]);
+    receiveAutocomplete([]);
   };
 
   render() {
     const {autocompletes, query, style} = this.props;
     return (
       <View style={[style, styles.container]}>
-        {this.state.searchBarVisible &&
-          <SearchBar
-            autocompletes={autocompletes}
-            onChangeText={this._onChangeText}
-            onSearch={this._onSearch}
-            query={query}
-            style={styles.searchBar}
-          />
+        {this.state.searchBarVisible ?
+            <SearchBar
+              autocompletes={autocompletes}
+              onChangeText={this._onChangeText}
+              onSearch={this._onSearch}
+              query={query}
+              style={styles.searchBar}
+            />
+          :
+            <View style={styles.placeholder}/>
         }
         <SearchButton
           onPress={this._onPress}
@@ -76,12 +97,16 @@ export default connect(
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'flex-end',
-    backgroundColor: 'green',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
+    backgroundColor: 'transparent',
     flexDirection: 'row',
   },
+  placeholder: {
+    backgroundColor: 'transparent',
+    flex: 7,
+  },
   searchBar: {
-    backgroundColor: 'green',
     flex: 7
   },
   button: {

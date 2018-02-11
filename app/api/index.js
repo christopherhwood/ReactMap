@@ -9,5 +9,5 @@ export const fetchAutocompletes = (text, region) => (
 export const fetchSearchResults = (query, region) => (
   fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=${GOOGLE_API_KEY}&location=${region.latitude},${region.longitude}&radius=2000&keyword=${query}`)
     .then(response => response.json())
-    .then(responseJson => responseJson.results)
+    .then(responseJson => responseJson.results.slice(0, 3))
 )

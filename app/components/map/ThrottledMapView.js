@@ -11,7 +11,7 @@ export default class ThrottledMapView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      region: this.props.initialRegion
+      region: this.props.region
     };
     this._throttledChangeRegion = throttle(this.props.onRegionChange, 1000);
   }
@@ -58,6 +58,7 @@ export default class ThrottledMapView extends Component {
 
   render() {
     const {markers, style} = this.props;
+
     return (
       <MapView
         data={markers}

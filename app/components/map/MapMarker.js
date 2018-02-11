@@ -2,9 +2,9 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {Marker} from 'react-native-maps';
 
-const MapMarker = () => {
+const MapMarker = ({coordinate}) => {
   return (
-    <Marker>
+    <Marker coordinate={coordinate}>
       <View style={styles.wrapper}>
         <View style={styles.ring}/>
         <View style={styles.point}/>
@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0000A0',
     borderRadius: 3,
     height: 6,
+    position: 'absolute',
     width: 6
   }
 });

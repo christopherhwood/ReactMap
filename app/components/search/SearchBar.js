@@ -9,12 +9,14 @@ const SearchBar = ({autocompletes, query, onChangeText, onSearch, style}) => {
   return (
     <View style={[style, styles.container]}>
       <AutoVisibleTextInput
+        clearButtonMode='always'
         onChangeText={onChangeText}
-        onSubmit={onSearch}
+        onSubmitEditing={() => onSearch()}
+        returnKeyType='search'
         style={styles.input}
         value={query}
       />
-      {autocompletes.count > 0 &&
+      {autocompletes.length > 0 &&
         <AutocompleteList
         autocompletes={autocompletes}
         onPress={onSearch}
@@ -33,13 +35,15 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: 'white',
     paddingHorizontal: 5,
-    flex: 1
+    flex: 1,
+    height: 40,
   },
   list: {
+    backgroundColor: 'white',
     borderTopColor: 'black',
     borderTopWidth: 1,
-    height: 125,
-    flex: 1
+    height: 120,
+    flex: 1,
   }
 });
 

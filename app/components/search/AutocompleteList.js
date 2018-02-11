@@ -5,16 +5,18 @@ const Cell = ({onPress, text}) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.textWrapper}>
-        <Text>{text}</Text>
+        <Text numberOfLines={1}>{text}</Text>
       </View>
     </TouchableOpacity>
   )
 };
 
 const AutocompleteList = ({autocompletes, onPress, style}) => {
+
   return (
     <FlatList
-      data={autocompletes}
+      data={autocompletes.map(rec => ({key: rec}))}
+      keyboardShouldPersistTaps={'always'}
       renderItem={({item}) => <Cell onPress={() => {onPress(item.key)}} text={item.key}/>}
       style={style}
     />
@@ -23,10 +25,10 @@ const AutocompleteList = ({autocompletes, onPress, style}) => {
 
 styles = StyleSheet.create({
   textWrapper: {
-    backgroundColor: 'yellow',
-    paddingVertical: 15,
+    backgroundColor: 'white',
+    paddingVertical: 5,
     paddingHorizontal: 5,
-  }
+  },
 });
 
 export default AutocompleteList;
